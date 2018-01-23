@@ -7,10 +7,10 @@ from dateutil.parser import parse
 from sklearn.cross_validation import KFold
 from sklearn.metrics import mean_squared_error
 
-data_path = '../data/'
+data_path = './data/'
 
-train = pd.read_csv(data_path + 'd_train_20180102.csv', encoding='gb2312')
-test = pd.read_csv(data_path + 'd_test_A_20180102.csv', encoding='gb2312')
+train = pd.read_csv(data_path + 'train.csv', encoding='gb2312')
+test = pd.read_csv(data_path + 'test.csv', encoding='gb2312')
 
 def make_feat(train, test):
     train_id = train.id.values.copy()
@@ -76,5 +76,5 @@ print('线下得分：    {}'.format(mean_squared_error(train_feat['血糖'], tr
 print('CV训练用时{}秒'.format(time.time() - t0))
 
 submission = pd.DataFrame({'pred': test_preds.mean(axis=1)})
-submission.to_csv(r'sub{}.csv'.format(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')), header=None,
+submission.to_csv(r'./data/sub{}.csv'.format(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')), header=None,
                   index=False, float_format='%.4f')
