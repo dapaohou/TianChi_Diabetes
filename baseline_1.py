@@ -6,8 +6,8 @@ import gc
 import datetime
 from dateutil.parser import parse
 
-train = pd.read_csv('./d_train_20180102.csv', encoding='gb18030')
-test = pd.read_csv('./d_test_A_20180102.csv', encoding='gb18030')
+train = pd.read_csv('./data/train.csv', encoding='gb18030')
+test = pd.read_csv('./data/test.csv', encoding='gb18030')
 
 
 def make_feat(train, test):
@@ -112,6 +112,6 @@ y_pred /= num_ensembles
 
 submission = pd.DataFrame({'pred': y_pred})
 
-submission.to_csv(r'sub{}.csv'.format(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')), header=None,
+submission.to_csv(r'./result/sub{}.csv'.format(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')), header=None,
                   index=False, float_format='%.4f')
 

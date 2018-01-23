@@ -19,12 +19,9 @@ def make_feat(train, test):
 
     data['性别'] = data['性别'].map({'男': 1, '女': 0})
     data['体检日期'] = (pd.to_datetime(data['体检日期']) - parse('2017-10-09')).dt.days
-
     data.fillna(data.median(axis=0), inplace=True)
-
     train_feat = data[data.id.isin(train_id)]
     test_feat = data[data.id.isin(test_id)]
-
     return train_feat, test_feat
 
 
