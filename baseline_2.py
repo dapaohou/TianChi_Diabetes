@@ -27,7 +27,7 @@ def make_feat(train, test):
 
 train_feat, test_feat = make_feat(train, test)
 
-predictors = [f for f in test_feat.columns if f not in ['血糖']]
+predictors = [f for f in test_feat.columns if f not in ['id', '血糖', '乙肝表面抗原', '乙肝表面抗体', '乙肝e抗原', '乙肝e抗体', '乙肝核心抗体']]
 
 
 def evalerror(pred, df):
@@ -76,5 +76,5 @@ print('线下得分：    {}'.format(mean_squared_error(train_feat['血糖'], tr
 print('CV训练用时{}秒'.format(time.time() - t0))
 
 submission = pd.DataFrame({'pred': test_preds.mean(axis=1)})
-submission.to_csv(r'./data/sub{}.csv'.format(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')), header=None,
+submission.to_csv(r'./result/sub{}.csv'.format(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')), header=None,
                   index=False, float_format='%.4f')

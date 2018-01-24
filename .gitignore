@@ -5,9 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
-
+*.tsv
 .idea/
-model/
 result/
 
 # Distribution / packaging

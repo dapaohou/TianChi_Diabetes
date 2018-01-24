@@ -3,14 +3,13 @@ from sklearn import preprocessing
 from sklearn.externals import joblib
 import matplotlib.pyplot as plt
 
-# from sklearn.feature_selection import SelectKBest, chi2
-# from sklearn.svm import LinearSVC
-# from sklearn.feature_selection import VarianceThreshold
-# from sklearn.feature_selection import SelectFromModel
 from sklearn.ensemble import RandomForestRegressor
 
-sexdic = {'男': 0, '女': 1, '??': 2}
-delcols = ['id', '体检日期', '乙肝表面抗原', '乙肝表面抗体', '乙肝e抗原', '乙肝e抗体', '乙肝核心抗体']
+sexdic = {'男': 0, '女': 1, '??': 0}
+delcols = ['id', '体检日期', '乙肝表面抗原', '乙肝表面抗体', '乙肝e抗原',
+           '乙肝e抗体', '乙肝核心抗体']
+    # '*球蛋白', '低密度脂蛋白胆固醇', ,
+    #        '红细胞平均体积', '血红蛋白', '红细胞压积', '红细胞平均血红蛋白浓度']
 
 
 def check_nan(df):
@@ -97,3 +96,4 @@ def select_features(X_train, y_train, df, size=1):
     # # plt.savefig('./random_forest.png', dpi=300)
     # plt.show()
     return del_cols
+
