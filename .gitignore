@@ -8,7 +8,9 @@ __pycache__/
 *.tsv
 .idea/
 result/
-
+model/
+model_add_feature/
+model_y_scaled/
 
 # Distribution / packaging
 .Python

@@ -4,13 +4,18 @@ from sklearn.externals import joblib
 import matplotlib.pyplot as plt
 
 from sklearn.ensemble import RandomForestRegressor
+from matplotlib import rcParams
+rcParams['font.sans-serif'] = ['SimHei']
+rcParams['font.family'] = 'sans-serif'
 
 sexdic = {'男': 0, '女': 1, '??': 0}
 delcols = ['id', '体检日期', '乙肝表面抗原', '乙肝表面抗体', '乙肝e抗原',
            '乙肝e抗体', '乙肝核心抗体']
-    # '*球蛋白', '低密度脂蛋白胆固醇', ,
-    #        '红细胞平均体积', '血红蛋白', '红细胞压积', '红细胞平均血红蛋白浓度']
+gaomidu_dic = {'男': 1, '女': 1.3, '??': 1.3}
 
+
+def gaomidu(x):
+    return gaomidu_dic[x]
 
 def check_nan(df):
     print(df.index[np.where(np.isnan(df))[0]])
@@ -30,6 +35,10 @@ def drop_fill(df):
     df.drop(delcols, 1, inplace=True)
     # df.replace(0, np.nan, inplace=True)
     df.fillna(df.mean().round(decimals=3), inplace=True)
+    df['甘油三酯超标值!!!'] = df['甘油三酯'] / 1.7
+    df['高密度脂蛋白胆固醇超标值!!!'] = df['高密度脂蛋白胆固醇'] / df['性别'].apply(gaomidu)
+    df['低高胆固醇ratio!!!'] = df['低密度脂蛋白胆固醇'] / df['高密度脂蛋白胆固醇']
+    df['低密度脂蛋白胆固醇超标值!!!'] = df['低密度脂蛋白胆固醇'] / 4.14
     # df.fillna(0, inplace=True)  # 先用均值填充NaN,如果还有NaN说明该列全为零，用0填充，让后面删掉
     return df
 
@@ -38,42 +47,29 @@ def calculate_mse(_x, _y):
     return np.linalg.norm((_x - _y)) / len(_y)
 
 
-def scale_features(x):
-
-    ##单变量特征选择-卡方检验，选择相关性最高的前100个特征  
-    # X_chi2 = SelectKBest(chi2, k=2000).fit_transform(label_X_scaler, label_y)
-    # print("训练集有 %d 行 %d 列" % (X_chi2.shape[0],X_chi2.shape[1]))
-    # df_X_chi2=pd.DataFrame(X_chi2)
-    # feature_names = df_X_chi2.columns.tolist()#显示列名
-    # print('单变量选择的特征：\n',feature_names)
-
-    ##基于L1的特征选择  
-    ##lsvc = LinearSVC(C=0.01, penalty="l1", dual=False).fit(label_X_scaler, label_y)  
-    ##model = SelectFromModel(lsvc, prefit=True)  
-    ##X_lsvc = model.transform(label_X_scaler)  
-    ##df_X_lsvc=pd.DataFrame(X_chi2)  
-    ##feature_names = df_X_lsvc.columns.tolist()#显示列名  
-    ##print('L1选择的特征：\n',feature_names)  
-
-    ##基于树的特征选择，并按重要性阈值选择特征  
-    # clf = ExtraTreesClassifier()#基于树模型进行模型选择
-    # clf = clf.fit(label_X_scaler, label_y)
-    # model = SelectFromModel(clf, threshold='1.00*mean',prefit=True)#选择特征重要性为1倍均值的特征，数值越高特征越重要
-    # X_trees = model.transform(label_X_scaler)#返回所选的特征
-    # df_X_trees=pd.DataFrame(X_chi2)
-    # feature_names = df_X_trees.columns.tolist()#显示列名
-    # print('树选择的特征：\n',feature_names)
+def scale_features(x, scaler_name):
     scaler = preprocessing.StandardScaler().fit(x)
     scaled_x = scaler.transform(x)
-    joblib.dump(scaler, ".\\model\\scaler.save")
+    joblib.dump(scaler, ".\\model\\{}_scaler.save".format(scaler_name))
     return scaled_x
 
+def scale_y(y):
+    y_scaler = preprocessing.StandardScaler().fit()
+    scaled_y = y_scaler.transform(y)
+    joblib.dump(y_scaler, 'model/y_scaler.save')
+    return np.array(scaled_y)
 
-def scale_load(x):
-    scaler = joblib.load(".\\model\\scaler.save")
+
+def scale_load(x, scaler_name):
+    scaler = joblib.load(".\\model\\{}_scaler.save".format(scaler_name))
     scaled_x = scaler.transform(x)
     return scaled_x
 
+
+def inverse_scale(x, scaler_name):
+    scaler = joblib.load(".\\model\\{}_scaler.save".format(scaler_name))
+    original_x = scaler.inverse_transform(x)
+    return original_x
 
 def select_features(X_train, y_train, df, size=1):
     del_cols = []
@@ -88,12 +84,12 @@ def select_features(X_train, y_train, df, size=1):
         # -*s表示左对齐字段feat_labels[indices[f]]宽为30
         if f > threadshold:
             del_cols.append(feat_labels[indices[f]])
-    # plt.title('Feature Importances')
-    # plt.bar(range(X_train.shape[1]), importances[indices], color='lightblue', align='center')
-    # plt.xticks(range(X_train.shape[1]), feat_labels[indices], rotation=90)
-    # plt.xlim([-1, X_train.shape[1]])
-    # plt.tight_layout()
-    # # plt.savefig('./random_forest.png', dpi=300)
-    # plt.show()
+    plt.title('Feature Importances')
+    plt.bar(range(X_train.shape[1]), importances[indices], color='lightblue', align='center')
+    plt.xticks(range(X_train.shape[1]), feat_labels[indices], rotation=90)
+    plt.xlim([-1, X_train.shape[1]])
+    plt.tight_layout()
+    # plt.savefig('./random_forest.png', dpi=300)
+    plt.show()
     return del_cols
 

@@ -19,30 +19,19 @@ from cleanData import *
 import warnings
 warnings.filterwarnings("ignore")
 
-
-def rmsle_cv(m_model, m_x_train, m_y_train):
-    m_n_folds = 5
-    kf = KFold(m_n_folds, shuffle=True, random_state=42).get_n_splits(m_x_train.values)
-    rmse = np.sqrt(-cross_val_score(m_model, m_x_train.values, m_y_train, scoring="neg_mean_squared_error", cv = kf))
-    return rmse
-
-
-def show_model_score(m_model_dic, m_model_names):
-    for index in range(len(m_model_names)):
-        score = rmsle_cv(m_model_dic[index])
-        print("\n {} score: {:.4f}({:.4f})".format(score.mean(), score.std()))
-
-
 df = pd.read_csv(".\\data\\train.csv", encoding='gbk')
 df = drop_fill(df)
 df = sexencode(df)
-
 # show(df)
+df = df[df['血糖'] < 20]
 print(df.shape)
 
 X = np.array(df.drop(['血糖'], 1))
 y = np.array(df['血糖'])
-X = scale_features(X)
+print('y origianl shape:', y.shape)
+X = scale_features(X, 'x')
+y = scale_y(y)
+print('y new shape:', y.shape)
 select_features(X, y, df)
 
 
@@ -81,7 +70,7 @@ model_dic = [model_lasso, model_forest, model_etc, model_catboost,
 
 
 isTest = False
-viewAll = True
+viewAll = False
 if viewAll:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     cv_score_list = []  # 交叉检验结果列表
@@ -125,7 +114,7 @@ else:
     modelindex = 0
     for model in model_dic:
         model.fit(X, y)
-        joblib.dump(model, ".\\model\\" + model_names[modelindex] + ".m")
+        joblib.dump(model, ".\\model_y_scaled\\" + model_names[modelindex] + ".m")
         modelindex += 1
 
 

@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 from sklearn.metrics import mean_squared_error
 model_names = ['Lasso', 'ElasticNet', 'catboost',
-               'GBR', 'KRR', 'LightGBM']  # 不同模型的名称列表
+               'GBR', 'LightGBM']  # 不同模型的名称列表
 tun = {938: 17.523, 928: 3.313, 951: 7.6585, 55: 4.3828, 393: 5.1964, 33: 5.7976,
        822: 5.9668}
 
@@ -41,7 +41,7 @@ if istun:
         tempout.at[index, 'y'] = new_pre_y
         tempout.to_csv(r'tun/0127/{}_{}.csv'.format(datetime.datetime.now().strftime('%m%d_%H%M'), name), index=None, header=None, float_format='%.4f')
 else:
-    out.to_csv(r'./result/{}_average.csv'.format(datetime.datetime.now().strftime('%m%d_%H%M')), index=None, header=None, float_format='%.4f')
+    out.to_csv(r'./result/{}_A_average.csv'.format(datetime.datetime.now().strftime('%m%d_%H%M')), index=None, header=None, float_format='%.4f')
 
 
 
