@@ -6,11 +6,6 @@ model_names = ['Lasso', 'ElasticNet', 'catboost',
                'GBR', 'KRR', 'LightGBM']  # 不同模型的名称列表
 tun = {938: 17.523, 928: 3.313, 951: 7.6585, 55: 4.3828, 393: 5.1964, 33: 5.7976,
        822: 5.9668}
-=======
-from sklearn.metrics import mean_squared_error
-model_names = ['Lasso', 'ElasticNet', 'catboost',
-               'GBR', 'KRR', 'LightGBM']  # 不同模型的名称列表
->>>>>>> 94e887d9119418013dfb0cd40216c361e1f086e3
 
 df = pd.read_csv(".\\data\\test.csv", encoding="gbk")
 df = drop_fill(df)
@@ -30,7 +25,6 @@ for model in model_names:
     modelindex += 1
 y = y/len(model_names)
 out = pd.DataFrame({'y': y})
-<<<<<<< HEAD
 
 for index in tun:
     out.at[index, 'y'] = tun[index]
@@ -48,9 +42,6 @@ if istun:
         tempout.to_csv(r'tun/0127/{}_{}.csv'.format(datetime.datetime.now().strftime('%m%d_%H%M'), name), index=None, header=None, float_format='%.4f')
 else:
     out.to_csv(r'./result/{}_average.csv'.format(datetime.datetime.now().strftime('%m%d_%H%M')), index=None, header=None, float_format='%.4f')
-=======
-out.to_csv('.\\result\\124A_%s.csv' % 'average', index=None, header=None, float_format='%.4f')
->>>>>>> 94e887d9119418013dfb0cd40216c361e1f086e3
 
 
 
