@@ -34,7 +34,7 @@ def show(df):
 def drop_fill(df):
     df.drop(delcols, 1, inplace=True)
     # df.replace(0, np.nan, inplace=True)
-    df.fillna(df.mean().round(decimals=3), inplace=True)
+    df.fillna(-999, inplace=True)
     df['甘油三酯超标值!!!'] = df['甘油三酯'] / 1.7
     df['高密度脂蛋白胆固醇超标值!!!'] = df['高密度脂蛋白胆固醇'] / df['性别'].apply(gaomidu)
     df['低高胆固醇ratio!!!'] = df['低密度脂蛋白胆固醇'] / df['高密度脂蛋白胆固醇']

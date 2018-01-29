@@ -19,19 +19,20 @@ from cleanData import *
 import warnings
 warnings.filterwarnings("ignore")
 
-df = pd.read_csv(".\\data\\train.csv", encoding='gbk')
+df = pd.read_csv(".\\data\\train2.csv", encoding='gbk')
+# df.dropna(axis=0, subset=['*天门冬氨酸氨基转换酶'], inplace=True)
 df = drop_fill(df)
 df = sexencode(df)
 # show(df)
-df = df[df['血糖'] < 20]
+df = df[df['血糖'] < 30]
 print(df.shape)
 
 X = np.array(df.drop(['血糖'], 1))
 y = np.array(df['血糖'])
 print('y origianl shape:', y.shape)
 X = scale_features(X, 'x')
-y = scale_y(y)
-print('y new shape:', y.shape)
+# y = scale_y(y)
+# print('y new shape:', y.shape)
 select_features(X, y, df)
 
 
@@ -70,7 +71,7 @@ model_dic = [model_lasso, model_forest, model_etc, model_catboost,
 
 
 isTest = False
-viewAll = False
+viewAll = True
 if viewAll:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     cv_score_list = []  # 交叉检验结果列表
@@ -114,7 +115,7 @@ else:
     modelindex = 0
     for model in model_dic:
         model.fit(X, y)
-        joblib.dump(model, ".\\model_y_scaled\\" + model_names[modelindex] + ".m")
+        joblib.dump(model, ".\\model_add_feature\\" + model_names[modelindex] + ".m")
         modelindex += 1
 
 
