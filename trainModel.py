@@ -5,9 +5,8 @@ from sklearn.pipeline import make_pipeline
 from catboost import CatBoostRegressor
 from sklearn.preprocessing import RobustScaler
 from sklearn.linear_model import Lasso, ElasticNet  # 批量导入要实现的回归算法
-from sklearn.svm import SVR  # SVM中的回归算法
 from sklearn.kernel_ridge import KernelRidge
-from sklearn.ensemble import RandomForestRegressor,  GradientBoostingRegressor  # 集成算法
+from sklearn.ensemble import GradientBoostingRegressor  # 集成算法
 from sklearn.model_selection import cross_val_score  # 交叉检验
 from sklearn.metrics import explained_variance_score, mean_absolute_error, mean_squared_error, r2_score  # 批量导入指标算法
 
@@ -23,7 +22,6 @@ df = pd.read_csv(".\\data\\train2.csv", encoding='gbk')
 # df.dropna(axis=0, subset=['*天门冬氨酸氨基转换酶'], inplace=True)
 df = drop_fill(df)
 df = sexencode(df)
-# show(df)
 df = df[df['血糖'] < 30]
 print(df.shape)
 
@@ -31,8 +29,6 @@ X = np.array(df.drop(['血糖'], 1))
 y = np.array(df['血糖'])
 print('y origianl shape:', y.shape)
 X = scale_features(X, 'x')
-# y = scale_y(y)
-# print('y new shape:', y.shape)
 select_features(X, y, df)
 
 
@@ -69,9 +65,8 @@ model_dic = [model_lasso, model_forest, model_etc, model_catboost,
              model_gbr, model_krr, model_xgb, model_lgb]  # 不同回归模型对象的集合
 
 
-
-isTest = False
-viewAll = True
+# viewAll 为True时查看交叉训练结果，False时生成训练模型
+viewAll = False
 if viewAll:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     cv_score_list = []  # 交叉检验结果列表
@@ -105,12 +100,6 @@ if viewAll:
     print('regression metrics:')  # 打印输出标题
     print(df2)  # 打印输出回归指标的数据框
     print(70 * '-')  # 打印分隔线
-elif isTest:
-    for i in range(5):
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-        model_gbr.fit(X_train, y_train)
-        MSE = mean_squared_error(model_gbr.predict(X_test), y_test)
-        print("MSE:", MSE)
 else:
     modelindex = 0
     for model in model_dic:
