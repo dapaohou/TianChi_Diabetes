@@ -8,7 +8,7 @@ model_names = ['Lasso', 'ElasticNet', 'catboost',
 
 df = pd.read_csv(".\\data\\test_B.csv", encoding="gbk")
 df = drop_fill(df)
-df = sexencode(df)
+df = encode(df)
 show(df)
 
 X = np.array(df.values)
