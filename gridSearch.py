@@ -10,52 +10,41 @@ from sklearn.ensemble import RandomForestRegressor,  GradientBoostingRegressor  
 from sklearn.model_selection import cross_val_score  # 交叉检验
 from sklearn.metrics import explained_variance_score, mean_absolute_error, mean_squared_error, r2_score  # 批量导入指标算法
 from sklearn.model_selection import GridSearchCV
+from catboost import CatBoostClassifier
+from tqdm import *
 import xgboost as xgb
 import lightgbm as lgb
 
 from cleanData import *
-from visualization import showliner,showheatmap
 
 import warnings
 warnings.filterwarnings("ignore")
 
 from matplotlib import rcParams
 rcParams['font.sans-serif'] = ['SimHei']
-rcParams['font.family']='sans-serif'
+rcParams['font.family'] = 'sans-serif'
 
 
-df = pd.read_csv(".\\data\\train.csv", encoding='gbk')
-df = drop_fill(df)
-df = df[df['血糖'] < 30]
-df = sexencode(df)
-print(df.shape)
+df = pd.read_csv(".\\data\\level2\\train_feat_dummies.csv", encoding='gb18030')
+y = df['label']
+X = np.array(df.drop(['label'], 1))
+X = scale_load(X, 'x')
 
-X = np.array(df.drop(['血糖'], 1))
-y = np.array(df['血糖'])
-X = scale_features(X, 'x')
-select_features(X, y, df)
+out = pd.DataFrame()
 
-# showliner(df['*天门冬氨酸氨基转换酶'], y, '*天门冬氨酸氨基转换酶', '血糖')
-showheatmap(df)
+for i in tqdm(range(5)):
+    estimator = CatBoostClassifier(
+        l2_leaf_reg=3,
+        loss_function='Logloss',
+        random_seed=i)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    param_grid = {'learning_rate': [0.001, 0.05, 0.1, 0.5, 0.8, 1], 'depth': range(3, 7, 1),
+                  'iterations': [1000, 3000]}
 
-estimator = lgb.LGBMRegressor(objective='regression')
-model_lgb = lgb.LGBMRegressor(objective='regression', num_leaves=60,boosting_type='gbdt',
-                              learning_rate=0.01, n_estimators=720,
-                              max_bin=55, bagging_fraction=0.8,
-                              bagging_freq=5, feature_fraction=0.7,
-                              feature_fraction_seed=9, bagging_seed=9,
-                              min_data_in_leaf=6, min_sum_hessian_in_leaf=11)
-param_grid = {
-    'learning_rate': [0.001, 0.05, 0.1, 0.5, 0.8, 1],
-    'n_estimators': range(100, 1001, 100)
-}
+    gbm = GridSearchCV(estimator, param_grid, scoring='f1', cv=5)
 
-gbm = GridSearchCV(estimator, param_grid)
+    gbm.fit(X, y)
 
-gbm.fit(X_train, y_train)
-model_lgb.fit(X_train, y_train)
-print('Best parameters found by grid search are:', gbm.best_params_)
-print("MSE:\n", mean_squared_error(gbm.predict(X_test), y_test)*0.5)
-print('MSE for original:', mean_squared_error(y_test, model_lgb.predict(X_test))*0.5)
+    print('Best parameters found by grid search are:', gbm.best_params_)
+    print('Best score found by grid search are:', gbm.best_score_)
+    print('Grid scores found by grid search are:', gbm.cv_results_)

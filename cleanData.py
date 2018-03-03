@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn import preprocessing
 from sklearn.externals import joblib
 import matplotlib.pyplot as plt
@@ -7,39 +8,42 @@ from matplotlib import rcParams
 rcParams['font.sans-serif'] = ['SimHei']
 rcParams['font.family'] = 'sans-serif'
 
-sexdic = {'男': 0, '女': 1, '??': 0}
-delcols = ['id', '体检日期', '乙肝表面抗原', '乙肝表面抗体', '乙肝e抗原',
-           '乙肝e抗体', '乙肝核心抗体']
-gaomidu_dic = {'男': 1, '女': 1.3, '??': 1.3}
+delcols = ['SNP54', 'SNP55', 'ACEID']
 
 
-def gaomidu(x):
-    return gaomidu_dic[x]
+def checknan(df):
+    colnan = df.count()
+    rownan = df.count(axis=1) / df.shape[1]
+    print("cols nan:", colnan, "rows nan", rownan)
+
+# def check_nan(df):
+#     print(df.index[np.where(np.isnan(df))[0]])
+#     print(df.columns[np.where(np.isnan(df))[1]])
 
 
-def check_nan(df):
-    print(df.index[np.where(np.isnan(df))[0]])
-    print(df.columns[np.where(np.isnan(df))[1]])
-
-
-def sexencode(df):
-    df['性别'] = df['性别'].map(sexdic)
+def encode(df, encode_cols):
+    ohe = preprocessing.OneHotEncoder(categorical_features=encode_cols)
+    ohe.fit(df.values)
+    df = ohe.transform(df.values)
+    # df = pd.get_dummies(df)
     return df
 
 
-def show(df):
-    print(df.head())
+def listEncodeCols(df):
+    cols = df.columns
+    encode_cols = []
+    for col in cols:
+        if 'SNP' in col and col not in delcols or col in ['BMI分类', 'DM家族史']:
+            encode_cols.append(col)
+    return encode_cols
 
 
 def drop_fill(df):
     df.drop(delcols, 1, inplace=True)
     # df.replace(0, np.nan, inplace=True)
-    df.fillna(-999, inplace=True)
+    # df.fillna(-999, inplace=True)
+    df.fillna(df.median(), inplace=True)
     # 根据指标的正常值设置偏差量作为特征
-    df['甘油三酯超标值!!!'] = df['甘油三酯'] / 1.7
-    df['高密度脂蛋白胆固醇超标值!!!'] = df['高密度脂蛋白胆固醇'] / df['性别'].apply(gaomidu)
-    df['低高胆固醇ratio!!!'] = df['低密度脂蛋白胆固醇'] / df['高密度脂蛋白胆固醇']
-    df['低密度脂蛋白胆固醇超标值!!!'] = df['低密度脂蛋白胆固醇'] / 4.14
     return df
 
 

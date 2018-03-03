@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.pipeline import make_pipeline
-from catboost import CatBoostRegressor
+from catboost import CatBoostClassifier
 from sklearn.preprocessing import RobustScaler
 from sklearn.linear_model import Lasso, ElasticNet  # 批量导入要实现的回归算法
 from sklearn.kernel_ridge import KernelRidge
@@ -18,16 +18,14 @@ from cleanData import *
 import warnings
 warnings.filterwarnings("ignore")
 
-df = pd.read_csv(".\\data\\train2.csv", encoding='gbk')
-# df.dropna(axis=0, subset=['*天门冬氨酸氨基转换酶'], inplace=True)
+df = pd.read_csv(".\\data\\level2\\train.csv", encoding='gbk')
+checknan(df)
 df = drop_fill(df)
-df = sexencode(df)
-df = df[df['血糖'] < 30]
-print(df.shape)
+df = encode(df)
+print(df)
 
-X = np.array(df.drop(['血糖'], 1))
-y = np.array(df['血糖'])
-print('y origianl shape:', y.shape)
+X = np.array(df.drop(['label'], 1))
+y = np.array(df['label'])
 X = scale_features(X, 'x')
 select_features(X, y, df)
 
@@ -37,7 +35,7 @@ n_folds = 6  # 设置交叉检验的次数
 model_lasso = make_pipeline(RobustScaler(), Lasso(alpha=0.0005, random_state=1))
 model_forest = RandomForestRegressor()  # 建立决策树模型对象
 model_etc = make_pipeline(RobustScaler(), ElasticNet(alpha=0.0005, l1_ratio=.9, random_state=3))  # 建立弹性网络回归模型对象
-model_catboost = CatBoostRegressor(
+model_catboost = CatBoostClassifier(
     iterations=1000, learning_rate=0.03,
     depth=6, l2_leaf_reg=3,
     loss_function='RMSE',
